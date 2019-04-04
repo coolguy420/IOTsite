@@ -7,7 +7,7 @@
   <head>
     <meta charset="utf-8">
     <title>Home</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="styleSheet.css">
     <link rel="icon" href="">
   </head>
   <body>

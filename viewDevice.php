@@ -7,7 +7,7 @@
   <head>
     <meta charset="utf-8">
     <title>Devices</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="styleSheet.css">
     <link rel="icon" href="">
     <script type="text/javascript" src="smoothie.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
@@ -60,20 +60,38 @@
         $device_id = isset($_REQUEST['device_id']) ? $_REQUEST['device_id'] : null;
       ?>
       <h1>Temperature</h1>
+      <p>Click me to change temperature unit:</p><button id="tempbutton" onclick="toggleTemp()">Celsius</button>
       <canvas id="tempCanvas" width="980" height="200"></canvas>
       <script>
-        var tempSmoothie = new SmoothieChart();
-        tempSmoothie.streamTo(document.getElementById("tempCanvas"), 1000);
+        var unit = 0;
+
+        function toggleTemp(){
+          if(unit == 0){
+            unit = 1;
+          }else{
+            unit = 0;
+          }
+          if(unit == 0){
+            document.getElementById("tempbutton").innerHTML = "Celsius";
+          }else if(unit == 1){
+            document.getElementById("tempbutton").innerHTML = "Fahrenheit";
+          }
+        }
+        var tempSmoothie = new SmoothieChart({maxValueScale:1.25,minValueScale:1.25,grid:{millisPerLine:2000},tooltip:true,timestampFormatter:SmoothieChart.timeFormatter});
         var line1 = new TimeSeries();
+        tempSmoothie.streamTo(document.getElementById("tempCanvas"), 1000);
         var idString = " <?php echo $device_id ?> ";
         var id = parseInt(idString, 10);
         setInterval(function() {
           $.post('getTemp.php', {id: id}, function(data){
             var temp = parseFloat(data);
+            if(unit == 1){
+              temp = temp * (9/5) + 32;
+            }
             line1.append(new Date().getTime(), temp);
           });
         }, 1000);
-        tempSmoothie.addTimeSeries(line1);
+        tempSmoothie.addTimeSeries(line1, {lineWidth:2,strokeStyle:'#00ff00'});
       </script>
 
       <div class=\"divider\"></div>
@@ -82,9 +100,9 @@
       <canvas id="humidityCanvas" width="980" height="200"></canvas>
 
       <script>
-        var humiditySmoothie = new SmoothieChart();
-        humiditySmoothie.streamTo(document.getElementById("humidityCanvas"), 1000);
+        var humiditySmoothie = new SmoothieChart({maxValueScale:1.25,minValueScale:1.25,grid:{millisPerLine:2000},tooltip:true,timestampFormatter:SmoothieChart.timeFormatter});
         var line2 = new TimeSeries();
+        humiditySmoothie.streamTo(document.getElementById("humidityCanvas"), 1000);
         var idString = " <?php echo $device_id ?> ";
         var id = parseInt(idString, 10);
         setInterval(function() {
@@ -93,7 +111,7 @@
             line2.append(new Date().getTime(), humidity);
           });
         }, 1000);
-        humiditySmoothie.addTimeSeries(line2);
+        humiditySmoothie.addTimeSeries(line2, {lineWidth:2,strokeStyle:'#00ff00'});
       </script>
 
     </div>
